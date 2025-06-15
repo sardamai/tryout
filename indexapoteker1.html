@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tryout JIMAT UKAIKU</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f8ff; }
+    .soal-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; max-width: 700px; margin: auto; }
+    h1 { text-align: center; color: #1e90ff; }
+    .jawaban { margin-top: 10px; }
+    .jawaban label { display: block; margin: 5px 0; }
+    .navigasi { margin-top: 20px; text-align: center; }
+    button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; background-color: #1e90ff; color: white; }
+    button:hover { background-color: #4682b4; }
+    #hasil { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; font-weight: bold; text-align: center; }
+    #hasil.lulus { background: #d4edda; color: #155724; }
+    #hasil.tidak-lulus { background: #f8d7da; color: #721c24; }
+    #timer { font-weight: bold; color: red; margin-bottom: 10px; text-align: center; font-size: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Tryout JIMAT UKAIKU</h1>
+  <div id="timer">Sisa Waktu: 50:00</div>
+  <div class="soal-box">
+    <div id="soal"></div>
+    <div class="jawaban" id="jawaban"></div>
+    <div class="navigasi">
+      <button onclick="sebelumnya()">&laquo; Sebelumnya</button>
+      <button onclick="selanjutnya()">Selanjutnya &raquo;</button>
+      <button onclick="selesai()">Selesai</button>
+    </div>
+    <div id="hasil"></div>
+  </div>
+
+  <script>
+    const soalData = [
+  // Masukkan soal ke-1 sampai ke-50 di sini dalam format berikut:
+  // {
+  //   pertanyaan: "Nomor. Pertanyaan ...",
+  //   pilihan: ["A", "B", "C", "D", "E"],
+  //   jawaban: "Jawaban yang benar"
+  // },
+
+  // Soal yang sudah ditambahkan:
+  {
+    pertanyaan: "1. Seorang Apoteker di industri farmasi ingin membuat sediaan yang berisi Kotrimoksazol. Kotrimoksazol adalah antibiotik kombinasi trimetoprim dan sulfametosazol. Berapakah perbandingan dosis dari kedua obat tersebut dalam kombinasi?",
+    pilihan: ["1:1", "4:1", "1:4", "1:5", "5:1"],
+    jawaban: "1:5"
+  },
+  {
+    pertanyaan: "2. Industri obat tradisional akan menghitung ALT (CFU/ml) dalam suatu ekstrak. Berapa syarat cawan koloni yang dipilih untuk pengujian tersebut?",
+    pilihan: ["10-100 koloni", "150-250 koloni", "200-250 koloni", "230-250 koloni", "300-400 koloni"],
+    jawaban: "230-250 koloni"
+  },
+  {
+    pertanyaan: "3. RnD suatu industri farmasi mengembangkan furosemide 40 mg. bahan yang ditambahkan laktosa mononitrat, polivinal pirolidon, pati jagung, Mg stearate, dan monokristalin selulosa. Pada saat pembuatan terdapat bagian atas tablet yang melekat pada pencetak (die), bahan apakah yang ditambahkan?...",
+    pilihan: ["Laktosa mononitrat", "Polivinil pirolidon", "Pati jagung", "Mg stearate", "Mikrokristalin selulosa"],
+    jawaban: "Mg stearate"
+  },
+  {
+    pertanyaan: "4. PT. JIMAT UKAI memproduksi sediaan tetes mata minidose. Apoteker yang betugas dalam memproduksi bertugas untuk membuat brosur terkait penyimpanan sediaan tersebut. Informasi terkait BUD sediaan tersebut adalah dapat disimpan selama ?",
+    pilihan: ["3x28 jam", "3x24 jam", "2x48 jam", "2x24 jam", "1x24 jam"],
+    jawaban: "3x24 jam"
+  },
+  {
+    pertanyaan: "5. Suatu industr farmasi ingin membuat sediaan topical antimikroba. Bahan aktif dalam sediaan diharapkan dapat berpenetrasi dengan baik ke dalam dermis oleh karena itu dalam formulasi perlu yang ditambahkan untuk meningkatkan penetrasi?",
+    pilihan: ["Gliserol", "DMSO", "Nipagin", "Sorbitol", "TEA"],
+    jawaban: "DMSO"
+  },
+  {
+    pertanyaan: "6. Apoteker industri farmasi ingin membuat 30 ml larutan lidokain 1% (BM 234). Apoteker menyiapkan obat dengan menggunakan lidokain HCL dengan BM 288. Berapa miligram lidokain HCL yang diperlukan untuk membuat 30 ml lidokain 1% tersebut?",
+    pilihan: ["3693", "36,92", "369,23", "812,23", "1230,05"],
+    jawaban: "369,23"
+  },
+  {
+    pertanyaan: "7. Seoarang apoteker di bagian QC industri X sedang melakukan uji kerapuhan tablet Olanzapine 10 mg dengan bobot teoritis tablet sebesar 100 mg. berat dari 20 tablet yang diuji adalah 2.500 mg. setelah dilakukan pengujian, berat ke-20 tablet tersebut tinggal 2.450 mg. berapakah tingkat kerapuhan tablet tersebut?",
+    pilihan: ["0,644%", "2,3%", "0,2%", "2%", "1%"],
+    jawaban: "2%"
+  },
+  {
+    pertanyaan: "8. Berapa % (w/w) dari zat aktif kekuatan 100 mg dengan salep 5 gram?",
+    pilihan: ["1%", "2%", "3%", "4%", "5%"],
+    jawaban: "2%"
+  },
+  {
+    pertanyaan: "9. Suatu industri farmasi membeli bahan baku paracetamol micronized sebanyak 16 drum dengan kemasan dan nomor batch yang sama. Bahan baku tersebut dianggap homogen dan hendak dilakukan sampling oleh apoteker yang berkerja pada QC. Berapa banyak drum yang harus disamping oleh apoteker tersebut?",
+    pilihan: ["1", "4", "2", "5", "3"],
+    jawaban: "5"
+  },
+  {
+    pertanyaan: "10.Seorang apoteker QC disuatu indutri farmasi bermaksud melakukan analisis terhadap sediaan multikomponen lisinopril dan hidroklorotiazid menggunakan alat kromatografi cair kenerja tinggi. Diperoleh hasil waktu retensi adalah 8,27 menit dan hidroklorotiazid adalh 12,28. Lebar kromatogram lisinopril 2,04 sedangkan hidroklorotiazid adalah 1,15. Berapa resolusi dari metode analisi tersebut?",
+    pilihan: ["0,32", "0,63", "1,26", "2,15", "3,00"],
+    jawaban: "2,15"
+  }
+];
+
+    let indeks = 0;
+    let jawabanUser = Array(soalData.length).fill(null);
+    let timer = 10 * 60;
+
+    function tampilkanSoal() {
+      const s = soalData[indeks];
+      document.getElementById("soal").innerText = s.pertanyaan;
+      let opsi = "";
+      s.pilihan.forEach((p, i) => {
+        opsi += `<label><input type="radio" name="jawaban" value="${p}" ${jawabanUser[indeks] === p ? 'checked' : ''}> ${String.fromCharCode(65 + i)}. ${p}</label>`;
+      });
+      document.getElementById("jawaban").innerHTML = opsi;
+    }
+
+    function simpanJawaban() {
+      const terpilih = document.querySelector('input[name="jawaban"]:checked');
+      if (terpilih) jawabanUser[indeks] = terpilih.value;
+    }
+
+    function sebelumnya() {
+      simpanJawaban();
+      if (indeks > 0) indeks--;
+      tampilkanSoal();
+    }
+
+    function selanjutnya() {
+      simpanJawaban();
+      if (indeks < soalData.length - 1) indeks++;
+      tampilkanSoal();
+    }
+
+    function selesai() {
+      simpanJawaban();
+      let benar = 0;
+      jawabanUser.forEach((jawab, i) => {
+        if (jawab === soalData[i].jawaban) benar++;
+      });
+      const skor = (benar / soalData.length) * 100;
+      const hasilEl = document.getElementById("hasil");
+      hasilEl.style.display = 'block';
+      hasilEl.innerText = `Jawaban benar: ${benar} dari ${soalData.length}\nSkor: ${skor.toFixed(2)}\nStatus: ${skor >= 70 ? 'LULUS ✅' : 'TIDAK LULUS ❌'}`;
+      hasilEl.className = skor >= 70 ? 'lulus' : 'tidak-lulus';
+    }
+
+    function updateTimer() {
+      const menit = Math.floor(timer / 60);
+      const detik = timer % 60;
+      document.getElementById("timer").innerText = `Sisa Waktu: ${menit}:${detik < 10 ? '0' : ''}${detik}`;
+      if (timer > 0) {
+        timer--;
+        setTimeout(updateTimer, 1000);
+      } else {
+        selesai();
+        alert("Waktu habis!");
+      }
+    }
+
+    tampilkanSoal();
+    updateTimer();
+  </script>
+</body>
+</html>
